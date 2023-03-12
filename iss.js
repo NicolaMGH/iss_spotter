@@ -29,4 +29,30 @@ const fetchMyIP = function(callback) {
   });
 };
 
-module.exports = { fetchMyIP };
+const fetchCoordsByIP = function(ip, callback) {
+  // use request to fetch IP address from JSON API
+  request(`http://ipwho.is/${ip}`, (error, response, body) => {
+  // inside the request callback ...
+  // error can be set if invalid domain, user is offline, etc.
+    if (error) {
+      callback(error, null);
+      return;
+    }
+    const parsedBody = JSON.parse(body);
+    // if no info found
+    if (!parsedBody.success) {
+      const message = `Status was ${parsedBody.success}. Server message says: ${parsedBody.message} when fetching for IP ${parsedBody.ip}`;
+      callback(Error(message), null);
+      return;
+    }
+
+    //const { latitude, longitude } = parsedBody;
+    const coords = { latitude: parsedBody.latitude, longitude: parsedBody.longitude };
+
+    callback(null, coords);
+  });
+};
+
+
+
+module.exports = { fetchCoordsByIP };
